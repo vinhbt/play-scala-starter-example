@@ -8,7 +8,7 @@ lazy val coreSettings = Seq(
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8"),
   daemonUser in Docker := "sd-local",
   daemonUserUid in Docker := Some("82"),
-  daemonGroup in Docker := "www-data",
+  daemonGroup in Docker := "sd-local",
   daemonGroupGid in Docker := Some("82")
 )
 
