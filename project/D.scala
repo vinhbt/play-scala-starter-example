@@ -18,7 +18,11 @@ object D {
     "org.playframework.anorm" %% "anorm"                  % "2.6.2",
     "com.sandinh"           %% "php-utils"                % "1.0.7",
     "io.github.nremond"     %% "pbkdf2-scala"             % "0.6.3",
-    //TODO should we update to v2-rev71-1.23.0?
+    "org.reactivecouchbase" %% "reactivecouchbase-rs-core" % "1.2.1",
+    "com.dripower"          %% "play-circe"               % "2609.1",
+    "org.tpolecat"          %% "doobie-core"              % "0.5.3",
+    "org.tpolecat"          %% "doobie-specs2"            % "0.5.3",
+  //TODO should we update to v2-rev71-1.23.0?
     "com.google.apis"       %  "google-api-services-androidpublisher" % "v2-rev71-1.21.0",
     "com.sksamuel.elastic4s" %% "elastic4s-core"          % V.es,
     "com.sksamuel.elastic4s" %% "elastic4s-http"          % V.es,
@@ -42,6 +46,7 @@ object D {
 
   val settings = Seq(
     resolvers += "Nexus" at "http://repo.bennuoc.com/repository/maven-public",
+    resolvers += Resolver.jcenterRepo,
 //    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= deps ++ tests,
     dependencyOverrides ++= overrides.toSeq

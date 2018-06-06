@@ -1,6 +1,8 @@
 package controllers
 
 import javax.inject._
+import play.api.db.Database
+import play.api.libs.circe.Circe
 import play.api.mvc._
 
 /**
@@ -8,10 +10,12 @@ import play.api.mvc._
  * application's home page.
  */
 @Singleton
-class UserController @Inject()(cc: ControllerComponents)(implicit assetsFinder: AssetsFinder)
-  extends AbstractController(cc) {
+class UserController @Inject()(cc: ControllerComponents,
+                               db: Database)(implicit assetsFinder: AssetsFinder)
+  extends AbstractController(cc) with Circe {
 
-  def login = Action.async {
+
+  def login = Action.async(circe.json) {
     ???
   }
 
