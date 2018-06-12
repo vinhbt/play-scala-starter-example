@@ -1,0 +1,5 @@
+package sd
+
+object JS {
+
+}
