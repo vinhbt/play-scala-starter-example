@@ -1,26 +1,39 @@
 package login
 
-import javax.inject.Inject
-import doobie._
+import javax.inject.{Inject, Singleton}
 import doobie.implicits._
-import sd.Helpers._
-import services.SDDoobie
+import io.circe.Json
+import play.api.db.Database
+import sd.Helpers.Transaction
+import sd.JS
+
+import scala.concurrent.Future
 import scala.language.implicitConversions
+import scala.util.Random
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class LoginRes @Inject() (db: SDDoobie){
-  import db.xa
+@Singleton
+class LoginRes @Inject() (db: Database){
 
-  def insert(name: String, bytes: Array[Byte], hash: String): ConnectionIO[Long] =
-    sql"""insert into file_info(name, hash, data)
-          values($name, $hash, $bytes)""".update.withUniqueGeneratedKeys("id")
-
-  def all: ConnectionIO[List[AuthModel]] = {
-    sql"""select id, name, hash, fecha from file_info""".query[AuthModel].to[List]
-  }
-
-  def store(name: String, bytes: Array[Byte], hash: String): Long = withTrans {
-    insert(name, bytes, hash)
+  def all: List[AuthModel] = db.withTrans {
+    sql"""select id, provider, provider_key, access_token from auth""".query[AuthModel].to[List]
   }.unsafeRunSync()
 
-  def archivos() = withTrans { all }.unsafeRunSync()
+  def insert(req: LoginReq) = {
+    val authToken = Random.alphanumeric.take(20).mkString
+    db.withTrans {
+      sql"""INSERT INTO auth(provider, provider_key, access_token) values (${req.provider}, ${req.uid}, $authToken)""".update.run
+    }.unsafeToFuture().map(_ => authToken)
+  }
+
+  def check(req: LoginReq): Future[Option[AuthModel]] = db.withTrans {
+    sql"""SELECT id, provider, provider_key, access_token FROM auth WHERE provider_key=${req.uid} AND provider=${req.provider}""".query[AuthModel].option
+  }.unsafeToFuture()
+
+  def login(req: LoginReq) = {
+    check(req).flatMap {
+        case None => insert(req).map(x => JS.OK("accessToken" -> Json.fromString(x)))
+        case Some(a) => Future successful JS.OK("accessToken" -> Json.fromString(a.accessToken))
+    }
+  }
 }
